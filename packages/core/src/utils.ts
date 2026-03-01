@@ -1,6 +1,8 @@
-import { EditorState } from 'lexical';
+import { EditorState, createEditor, ParagraphNode, TextNode } from 'lexical';
 import { $getRoot, $isElementNode, $isTextNode } from 'lexical';
-import { $isHeadingNode } from '@lexical/rich-text';
+import { $isHeadingNode, HeadingNode } from '@lexical/rich-text';
+import { LinkNode, AutoLinkNode } from '@lexical/link';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 /**
  * Get the editor content as JSON
@@ -217,4 +219,53 @@ export function getEditorTree(json: any): any {
   };
   
   return buildTree(json.root);
+}
+
+const headlessNodes = [HeadingNode, ParagraphNode, TextNode, LinkNode, AutoLinkNode];
+
+function createHeadlessEditor() {
+  return createEditor({
+    namespace: 'luxe-headless',
+    nodes: headlessNodes,
+    onError: () => {},
+  });
+}
+
+/**
+ * Extract plain text from a stored Lexical JSON object.
+ * No editor instance or DOM required — works anywhere (server, utility, etc.)
+ */
+export function getTextFromJSON(json: any): string {
+  if (!json) return '';
+  try {
+    const editor = createHeadlessEditor();
+    const editorState = editor.parseEditorState(json);
+    let text = '';
+    editorState.read(() => {
+      text = $getRoot().getTextContent();
+    });
+    return text;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Convert a stored Lexical JSON object to an HTML string.
+ * Useful for rendering editor content in read-only views without mounting the editor.
+ * Note: runs in a browser-like environment; on the server use a DOM shim (e.g. jsdom).
+ */
+export function getHTMLFromJSON(json: any): string {
+  if (!json) return '';
+  try {
+    const editor = createHeadlessEditor();
+    const editorState = editor.parseEditorState(json);
+    let html = '';
+    editorState.read(() => {
+      html = $generateHtmlFromNodes(editor, null);
+    });
+    return html;
+  } catch {
+    return '';
+  }
 }

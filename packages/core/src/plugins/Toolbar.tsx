@@ -60,10 +60,10 @@ export function getToolbarLabel(type: ToolbarItemType): string {
 function Divider() {
   return (
     <div
+      className="luxe-toolbar-divider"
       style={{
         width: '1px',
         height: '24px',
-        background: '#e5e7eb',
         margin: '0 4px',
       }}
     />
@@ -108,12 +108,11 @@ function ColorPicker({
       <button
         onClick={() => onAction(item, item.color!)}
         title={`${item.type === 'textColor' ? 'Text' : 'Background'} Color: ${item.color}`}
+        className="luxe-toolbar-select-btn"
         style={{
           padding: '6px 12px',
-          border: '1px solid #e5e7eb',
-          background: item.type === 'backgroundColor' ? item.color : 'white',
-          color: item.type === 'textColor' ? item.color : '#000',
-          cursor: 'pointer',
+          background: item.type === 'backgroundColor' ? item.color : undefined,
+          color: item.type === 'textColor' ? item.color : undefined,
           borderRadius: '4px',
           minWidth: '40px',
           height: '32px',
@@ -133,11 +132,9 @@ function ColorPicker({
       <button
         onClick={() => setShowPicker(!showPicker)}
         title={`${item.type === 'textColor' ? 'Text' : 'Background'} Color`}
+        className="luxe-toolbar-select-btn"
         style={{
           padding: '6px 12px',
-          border: '1px solid #e5e7eb',
-          background: 'white',
-          cursor: 'pointer',
           borderRadius: '4px',
           minWidth: '40px',
           height: '32px',
@@ -152,14 +149,14 @@ function ColorPicker({
             display: 'block',
             width: '20px',
             height: '20px',
-            background: item.type === 'backgroundColor' 
+            background: item.type === 'backgroundColor'
               ? 'linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)'
               : 'currentColor',
             backgroundSize: item.type === 'backgroundColor' ? '8px 8px' : 'auto',
             backgroundPosition: item.type === 'backgroundColor' ? '0 0, 0 4px, 4px -4px, -4px 0px' : 'auto',
           }}>
             {item.type === 'textColor' && (
-              <span style={{ color: '#000', fontSize: '12px' }}>A</span>
+              <span style={{ fontSize: '12px' }}>A</span>
             )}
           </span>
         )}
@@ -167,13 +164,12 @@ function ColorPicker({
       </button>
       {showPicker && (
         <div
+          className="luxe-toolbar-panel"
           style={{
             position: 'absolute',
             top: '100%',
             left: 0,
             marginTop: '4px',
-            background: 'white',
-            border: '1px solid #e5e7eb',
             borderRadius: '6px',
             padding: '8px',
             display: 'grid',
@@ -234,11 +230,11 @@ function ColorPicker({
               onAction(item, e.target.value);
               setShowPicker(false);
             }}
+            className="luxe-toolbar-input"
             style={{
               gridColumn: '1 / -1',
               width: '100%',
               height: '32px',
-              border: '1px solid #e5e7eb',
               borderRadius: '4px',
               cursor: 'pointer',
             }}
@@ -303,11 +299,9 @@ function HeadingDropdown({
       <button
         onClick={() => setShowDropdown(!showDropdown)}
         title="Heading"
+        className="luxe-toolbar-select-btn"
         style={{
           padding: '6px 12px',
-          border: '1px solid #e5e7eb',
-          background: 'white',
-          cursor: 'pointer',
           borderRadius: '4px',
           minWidth: '100px',
           height: '32px',
@@ -315,7 +309,7 @@ function HeadingDropdown({
           alignItems: 'center',
           justifyContent: 'space-between',
           position: 'relative',
-          fontSize: currentBlockType === 'paragraph' ? '14px' : 
+          fontSize: currentBlockType === 'paragraph' ? '14px' :
                     currentBlockType === 'h1' ? '20px' :
                     currentBlockType === 'h2' ? '18px' :
                     currentBlockType === 'h3' ? '16px' : '14px',
@@ -327,13 +321,12 @@ function HeadingDropdown({
       </button>
       {showDropdown && (
         <div
+          className="luxe-toolbar-panel"
           style={{
             position: 'absolute',
             top: '100%',
             left: 0,
             marginTop: '4px',
-            background: 'white',
-            border: '1px solid #e5e7eb',
             borderRadius: '6px',
             padding: '4px',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -345,33 +338,17 @@ function HeadingDropdown({
             <button
               key={option.value}
               onClick={() => handleHeadingSelect(option.value)}
+              className={`luxe-toolbar-panel-item${currentBlockType === option.value ? ' luxe-active' : ''}`}
               style={{
-                width: '100%',
                 padding: '8px 12px',
-                border: 'none',
-                background: currentBlockType === option.value ? '#e5e7eb' : 'transparent',
-                cursor: 'pointer',
                 borderRadius: '4px',
-                textAlign: 'left',
-                fontSize: option.value === 'paragraph' ? '14px' : 
+                fontSize: option.value === 'paragraph' ? '14px' :
                           option.value === 'h1' ? '20px' :
                           option.value === 'h2' ? '18px' :
                           option.value === 'h3' ? '16px' : '14px',
                 fontWeight: option.value !== 'paragraph' ? 'bold' : 'normal',
                 display: 'flex',
                 alignItems: 'center',
-              }}
-              onMouseEnter={(e) => {
-                if (currentBlockType !== option.value) {
-                  e.currentTarget.style.background = '#f3f4f6';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (currentBlockType !== option.value) {
-                  e.currentTarget.style.background = 'transparent';
-                } else {
-                  e.currentTarget.style.background = '#e5e7eb';
-                }
               }}
             >
               {option.label}
@@ -516,19 +493,11 @@ function LinkDialog({
   return (
     <div style={{ position: 'relative' }} ref={dialogRef}>
       <button
-        onClick={() => {
-          setShowDialog(!showDialog);
-          // If opening dialog and we're in a link, pre-fill the URL
-          if (!showDialog && isLink) {
-            // URL will be set by updateLinkState
-          }
-        }}
+        onClick={() => setShowDialog(!showDialog)}
         title={isLink ? 'Edit Link' : 'Insert Link'}
+        className={`luxe-toolbar-btn${isLink ? ' luxe-active' : ''}`}
         style={{
           padding: '6px 12px',
-          border: 'none',
-          background: isLink ? '#e5e7eb' : 'transparent',
-          cursor: 'pointer',
           borderRadius: '4px',
           minWidth: '32px',
           display: 'flex',
@@ -536,30 +505,17 @@ function LinkDialog({
           justifyContent: 'center',
           transition: 'background-color 0.2s',
         }}
-        onMouseEnter={(e) => {
-          if (!isLink) {
-            e.currentTarget.style.background = '#f3f4f6';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!isLink) {
-            e.currentTarget.style.background = 'transparent';
-          } else {
-            e.currentTarget.style.background = '#e5e7eb';
-          }
-        }}
       >
         {item.icon || getToolbarLabel(item.type)}
       </button>
       {showDialog && (
         <div
+          className="luxe-toolbar-panel"
           style={{
             position: 'absolute',
             top: '100%',
             left: 0,
             marginTop: '4px',
-            background: 'white',
-            border: '1px solid #e5e7eb',
             borderRadius: '6px',
             padding: '12px',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -574,24 +530,23 @@ function LinkDialog({
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={handleKeyDown}
+            className="luxe-toolbar-input"
             style={{
               width: '100%',
               padding: '8px',
-              border: '1px solid #e5e7eb',
               borderRadius: '4px',
               fontSize: '14px',
               marginBottom: '8px',
+              boxSizing: 'border-box',
             }}
           />
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
             {isLink && (
               <button
                 onClick={handleRemoveLink}
+                className="luxe-toolbar-select-btn"
                 style={{
                   padding: '6px 12px',
-                  border: '1px solid #e5e7eb',
-                  background: 'white',
-                  cursor: 'pointer',
                   borderRadius: '4px',
                   fontSize: '14px',
                   color: '#dc2626',
@@ -602,11 +557,9 @@ function LinkDialog({
             )}
             <button
               onClick={() => setShowDialog(false)}
+              className="luxe-toolbar-select-btn"
               style={{
                 padding: '6px 12px',
-                border: '1px solid #e5e7eb',
-                background: 'white',
-                cursor: 'pointer',
                 borderRadius: '4px',
                 fontSize: '14px',
               }}
@@ -618,7 +571,7 @@ function LinkDialog({
               style={{
                 padding: '6px 12px',
                 border: 'none',
-                background: '#3b82f6',
+                background: 'var(--luxe-primary)',
                 color: 'white',
                 cursor: 'pointer',
                 borderRadius: '4px',
@@ -660,11 +613,9 @@ function ToolbarButton({ item, active = false, disabled = false, onAction, curre
       onClick={() => onAction(item)}
       disabled={disabled}
       title={item.type.charAt(0).toUpperCase() + item.type.slice(1).replace(/([A-Z])/g, ' $1').trim()}
+      className={`luxe-toolbar-btn${active ? ' luxe-active' : ''}`}
       style={{
         padding: '6px 12px',
-        border: 'none',
-        background: active ? '#e5e7eb' : 'transparent',
-        cursor: disabled ? 'not-allowed' : 'pointer',
         borderRadius: '4px',
         fontWeight: item.type === 'bold' ? 'bold' : 'normal',
         fontStyle: item.type === 'italic' ? 'italic' : 'normal',
@@ -675,19 +626,6 @@ function ToolbarButton({ item, active = false, disabled = false, onAction, curre
         alignItems: 'center',
         justifyContent: 'center',
         transition: 'background-color 0.2s',
-        opacity: disabled ? 0.5 : 1,
-      }}
-      onMouseEnter={(e) => {
-        if (!disabled && !active) {
-          e.currentTarget.style.background = '#f3f4f6';
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          e.currentTarget.style.background = 'transparent';
-        } else {
-          e.currentTarget.style.background = '#e5e7eb';
-        }
       }}
     >
       {item.icon || label}
@@ -963,17 +901,15 @@ export function Toolbar({ items, onFullscreenToggle, isFullscreen = false }: Too
   };
 
   return (
-    <div 
-      className="luxe-toolbar" 
-      style={{ 
+    <div
+      className="luxe-toolbar"
+      style={{
         display: 'flex',
         gap: '4px',
         alignItems: 'center',
-        background: 'white',
-        borderBottom: '1px solid #e5e7eb',
         borderRadius: '8px 8px 0 0',
         padding: '8px',
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
       }}
     >
       {items.map((item, index) => {

@@ -1,17 +1,19 @@
 import React from 'react';
-import { LuxeEditor, type ToolbarItem, getEditorText, getEditorJSON, getEditorDOM, getEditorTree } from 'luxe-edit';
+import { LuxeEditor, type ToolbarItem, getEditorText, getEditorJSON, getEditorDOM, getEditorTree, getHTMLFromJSON } from 'luxe-edit';
 import type { LexicalEditor } from 'lexical';
 
 export function Playground() {
   const [showFloatingToolbar, setShowFloatingToolbar] = React.useState(true);
   const [showTopToolbar, setShowTopToolbar] = React.useState(true);
-  const [viewMode, setViewMode] = React.useState<'tree' | 'dom' | 'json'>('tree');
+  const [colorScheme, setColorScheme] = React.useState<'light' | 'dark'>('light');
+  const [viewMode, setViewMode] = React.useState<'tree' | 'dom' | 'json' | 'html'>('tree');
   const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
   const [editorInstance, setEditorInstance] = React.useState<LexicalEditor | null>(null);
   const [editorContent, setEditorContent] = React.useState({
     json: null as any,
     tree: null as any,
     dom: '',
+    html: '',
     wordCount: 0,
     charCount: 0
   });
@@ -116,14 +118,58 @@ export function Playground() {
           <span style={{ color: '#475569', fontWeight: 500 }}>Top Toolbar</span>
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-          <input 
-            type="checkbox" 
-            checked={showFloatingToolbar} 
+          <input
+            type="checkbox"
+            checked={showFloatingToolbar}
             onChange={(e) => setShowFloatingToolbar(e.target.checked)}
             style={{ cursor: 'pointer' }}
           />
           <span style={{ color: '#475569', fontWeight: 500 }}>Floating Toolbar</span>
         </label>
+
+        {/* Theme Toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ color: '#475569', fontWeight: 500 }}>Theme:</span>
+          <div style={{
+            display: 'flex',
+            background: '#f1f5f9',
+            borderRadius: '6px',
+            padding: '3px',
+            gap: '3px',
+          }}>
+            <button
+              onClick={() => setColorScheme('light')}
+              style={{
+                padding: '4px 12px',
+                borderRadius: '4px',
+                border: 'none',
+                background: colorScheme === 'light' ? '#fff' : 'transparent',
+                color: colorScheme === 'light' ? '#1e293b' : '#64748b',
+                cursor: 'pointer',
+                fontWeight: colorScheme === 'light' ? 600 : 400,
+                fontSize: '0.85rem',
+                boxShadow: colorScheme === 'light' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
+              ☀️ Light
+            </button>
+            <button
+              onClick={() => setColorScheme('dark')}
+              style={{
+                padding: '4px 12px',
+                borderRadius: '4px',
+                border: 'none',
+                background: colorScheme === 'dark' ? '#1e293b' : 'transparent',
+                color: colorScheme === 'dark' ? '#f8fafc' : '#64748b',
+                cursor: 'pointer',
+                fontWeight: colorScheme === 'dark' ? 600 : 400,
+                fontSize: '0.85rem',
+              }}
+            >
+              🌙 Dark
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Two Column Layout */}
@@ -167,14 +213,15 @@ export function Playground() {
             overflow: 'auto',
             padding: '20px'
           }}>
-            <LuxeEditor 
-              initialConfig={{ 
+            <LuxeEditor
+              initialConfig={{
                 namespace: 'LuxePlayground',
-                theme: {} 
+                theme: {}
               }}
               showToolbar={showTopToolbar}
               showFloatingToolbar={showFloatingToolbar}
               toolbarItems={toolbarItems}
+              colorScheme={colorScheme}
               onChange={(editorState, editor) => {
                 const plainText = getEditorText(editorState);
                 const json = getEditorJSON(editorState);
@@ -202,6 +249,7 @@ export function Playground() {
                   json,
                   tree,
                   dom: '', // Will be updated asynchronously
+                  html: getHTMLFromJSON(json),
                   wordCount: words.length,
                   charCount: plainText.length
                 });
@@ -301,6 +349,22 @@ export function Playground() {
               >
                 🔧 JSON
               </button>
+              <button
+                onClick={() => setViewMode('html')}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  background: viewMode === 'html' ? '#3b82f6' : 'transparent',
+                  color: viewMode === 'html' ? '#fff' : '#64748b',
+                  cursor: 'pointer',
+                  fontWeight: viewMode === 'html' ? 600 : 400,
+                  fontSize: '0.85rem',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🌐 HTML
+              </button>
             </div>
           </div>
 
@@ -350,6 +414,8 @@ export function Playground() {
                 <TreeView tree={editorContent.tree} />
               ) : viewMode === 'dom' ? (
                 <DOMView dom={editorContent.dom} />
+              ) : viewMode === 'html' ? (
+                <HTMLView html={editorContent.html} />
               ) : (
                 <JSONView json={editorContent.json} />
               )}
@@ -462,6 +528,74 @@ function DOMView({ dom }: { dom: string }) {
       ) : (
         <div style={{ color: '#64748b', textAlign: 'center', padding: '40px' }}>
           (empty - start typing to see DOM output)
+        </div>
+      )}
+    </div>
+  );
+}
+
+// HTML View Component
+function HTMLView({ html }: { html: string }) {
+  const [tab, setTab] = React.useState<'preview' | 'source'>('preview');
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+      {/* Tab switcher */}
+      <div style={{ display: 'flex', gap: '4px' }}>
+        {(['preview', 'source'] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            style={{
+              padding: '4px 12px',
+              borderRadius: '4px',
+              border: '1px solid #e2e8f0',
+              background: tab === t ? '#3b82f6' : '#fff',
+              color: tab === t ? '#fff' : '#64748b',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              fontWeight: tab === t ? 600 : 400,
+            }}
+          >
+            {t === 'preview' ? '👁 Preview' : '📄 Source'}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'preview' ? (
+        <div style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '16px',
+          background: '#fff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          fontSize: '0.95rem',
+          lineHeight: '1.6',
+          color: '#1e293b',
+        }}>
+          {html ? (
+            <div dangerouslySetInnerHTML={{ __html: html }} />
+          ) : (
+            <div style={{ color: '#94a3b8', textAlign: 'center', padding: '40px' }}>
+              (empty — start typing to see rendered HTML)
+            </div>
+          )}
+        </div>
+      ) : (
+        <div style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '20px',
+          background: '#1e293b',
+          borderRadius: '8px',
+          fontSize: '0.85rem',
+          color: '#7dd3fc',
+          fontFamily: 'Monaco, Menlo, "Courier New", monospace',
+        }}>
+          <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.5' }}>
+            {html || '(empty — start typing to see HTML source)'}
+          </pre>
         </div>
       )}
     </div>

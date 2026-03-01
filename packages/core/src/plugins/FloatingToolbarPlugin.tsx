@@ -10,6 +10,7 @@ import { getToolbarLabel, defaultColors } from './Toolbar';
 interface FloatingToolbarPluginProps {
   enabled?: boolean;
   items?: ToolbarItem[];
+  colorScheme?: 'light' | 'dark';
 }
 
 // Default floating toolbar items - only essential text formatting
@@ -25,9 +26,10 @@ function filterFloatingToolbarItems(items: ToolbarItem[]): ToolbarItem[] {
   return items.filter(item => allowedTypes.includes(item.type));
 }
 
-export function FloatingToolbarPlugin({ 
-  enabled = true, 
-  items 
+export function FloatingToolbarPlugin({
+  enabled = true,
+  items,
+  colorScheme,
 }: FloatingToolbarPluginProps) {
   // Use filtered items if provided, otherwise use defaults
   const floatingItems = items 
@@ -215,21 +217,20 @@ export function FloatingToolbarPlugin({
   if (!coords) return null;
 
   return createPortal(
-    <div 
-      className="luxe-floating-toolbar" 
-      style={{ 
-        position: 'fixed', 
-        top: `${coords.y}px`, 
+    <div
+      className="luxe-floating-toolbar"
+      data-luxe-theme={colorScheme}
+      style={{
+        position: 'fixed',
+        top: `${coords.y}px`,
         left: `${coords.x}px`,
         transform: 'translateX(-50%)',
         display: 'flex',
         gap: '4px',
-        background: 'white',
-        border: '1px solid #e5e7eb',
         borderRadius: '6px',
         padding: '4px',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-        zIndex: 1000
+        zIndex: 1000,
       }}
     >
       {floatingItems.map((item, index) => {
@@ -246,12 +247,11 @@ export function FloatingToolbarPlugin({
                 <button
                   onClick={() => handleToolbarAction(item, item.color)}
                   title={`${item.type === 'textColor' ? 'Text' : 'Background'} Color`}
+                  className="luxe-toolbar-select-btn"
                   style={{
                     padding: '4px 8px',
-                    border: '1px solid #e5e7eb',
-                    background: item.type === 'backgroundColor' ? item.color : 'white',
-                    color: item.type === 'textColor' ? item.color : '#000',
-                    cursor: 'pointer',
+                    background: item.type === 'backgroundColor' ? item.color : undefined,
+                    color: item.type === 'textColor' ? item.color : undefined,
                     borderRadius: '4px',
                     minWidth: '28px',
                     height: '28px',
@@ -269,8 +269,7 @@ export function FloatingToolbarPlugin({
                       width: '24px',
                       height: '24px',
                       border: item.type === 'textColor' ? `3px solid ${color}` : '1px solid #e5e7eb',
-                      background: item.type === 'backgroundColor' ? color : 'white',
-                      color: item.type === 'textColor' ? '#000' : 'inherit',
+                      background: item.type === 'backgroundColor' ? color : undefined,
                       cursor: 'pointer',
                       borderRadius: '3px',
                       fontSize: '10px',
@@ -280,12 +279,7 @@ export function FloatingToolbarPlugin({
                     }}
                   >
                     {item.type === 'textColor' && (
-                      <span style={{ 
-                        color: color, 
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        lineHeight: '1',
-                      }}>A</span>
+                      <span style={{ color, fontSize: '12px', fontWeight: 'bold', lineHeight: '1' }}>A</span>
                     )}
                   </button>
                 ))
@@ -299,11 +293,9 @@ export function FloatingToolbarPlugin({
             key={`${item.type}-${index}`}
             onClick={() => handleToolbarAction(item)}
             title={item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+            className="luxe-toolbar-btn"
             style={{
               padding: '6px 12px',
-              border: 'none',
-              background: 'transparent',
-              cursor: 'pointer',
               borderRadius: '4px',
               fontWeight: item.type === 'bold' ? 'bold' : 'normal',
               fontStyle: item.type === 'italic' ? 'italic' : 'normal',
@@ -313,13 +305,7 @@ export function FloatingToolbarPlugin({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'background-color 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#f3f4f6';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
+              transition: 'background-color 0.2s',
             }}
           >
             {item.icon || label}
