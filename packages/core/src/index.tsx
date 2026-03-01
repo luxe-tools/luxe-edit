@@ -43,6 +43,11 @@ import type { ToolbarItem } from './types/toolbar';
 
 export interface LuxeEditorProps {
   initialConfig: Partial<InitialConfigType>;
+  /**
+   * Optional initial editor content as a serialized Lexical editor state (JSON).
+   * This is ideal for loading content from a database for editing.
+   */
+  initialJSON?: any;
   showFloatingToolbar?: boolean;
   showToolbar?: boolean;
   toolbarItems?: ToolbarItem[];
@@ -52,8 +57,45 @@ export interface LuxeEditorProps {
   children?: React.ReactNode;
 }
 
+function OnChangeHandler({ onChange, ignoreInitialChange }: { onChange: (editorState: EditorState, editor: LexicalEditor) => void; ignoreInitialChange: boolean }) {
+  const [editor] = useLexicalComposerContext();
+  const isInitialChangeRef = React.useRef(true);
+
+  React.useEffect(() => {
+    return editor.registerUpdateListener(({ editorState, prevEditorState }) => {
+      if (ignoreInitialChange && isInitialChangeRef.current && prevEditorState.isEmpty()) {
+        isInitialChangeRef.current = false;
+        return;
+      }
+      isInitialChangeRef.current = false;
+      onChange(editorState, editor);
+    });
+  }, [editor, onChange, ignoreInitialChange]);
+
+  return null;
+}
+
+function InitialJSONHandler({ initialJSON }: { initialJSON: any }) {
+  const [editor] = useLexicalComposerContext();
+  const hasInitializedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!initialJSON || hasInitializedRef.current) return;
+    try {
+      const editorState = editor.parseEditorState(initialJSON);
+      editor.setEditorState(editorState);
+      hasInitializedRef.current = true;
+    } catch (error) {
+      console.error('LuxeEditor: Failed to parse initialJSON', error);
+    }
+  }, [editor, initialJSON]);
+
+  return null;
+}
+
 export function LuxeEditor({ 
   initialConfig, 
+  initialJSON,
   showFloatingToolbar = true,
   showToolbar = true,
   toolbarItems,
@@ -83,29 +125,6 @@ export function LuxeEditor({
   // Get user's onUpdate if provided (it's not in the type but can be passed)
   const userOnUpdate = (restInitialConfig as any).onUpdate;
 
-  // Internal component to handle onChange without requiring a separate plugin file
-  // This component runs inside LexicalComposer so it can access the editor instance
-  const OnChangeHandler = React.memo(() => {
-    const [editor] = useLexicalComposerContext();
-    const isInitialChangeRef = React.useRef(true);
-
-    React.useEffect(() => {
-      if (!onChange) return;
-
-      return editor.registerUpdateListener(({ editorState, prevEditorState }) => {
-        // Skip initial change if ignoreInitialChange is true
-        if (ignoreInitialChange && isInitialChangeRef.current && prevEditorState.isEmpty()) {
-          isInitialChangeRef.current = false;
-          return;
-        }
-        
-        isInitialChangeRef.current = false;
-        onChange(editorState, editor);
-      });
-    }, [editor, onChange, ignoreInitialChange]);
-
-    return null;
-  });
 
   const config = {
     namespace: 'LuxeEditor',
@@ -149,7 +168,8 @@ export function LuxeEditor({
         />
         <HistoryPlugin />
         <LinkPlugin />
-        {onChange && <OnChangeHandler />}
+        {onChange && <OnChangeHandler onChange={onChange} ignoreInitialChange={ignoreInitialChange} />}
+        {initialJSON && <InitialJSONHandler initialJSON={initialJSON} />}
         {showFloatingToolbar && (
           <FloatingToolbarPlugin 
             enabled={true} 
