@@ -173,9 +173,10 @@ export function LuxeEditor({
         {onChange && <OnChangeHandler onChange={onChange} ignoreInitialChange={ignoreInitialChange} />}
         {initialJSON && <InitialJSONHandler initialJSON={initialJSON} />}
         {showFloatingToolbar && (
-          <FloatingToolbarPlugin 
-            enabled={true} 
+          <FloatingToolbarPlugin
+            enabled={true}
             items={floatingToolbarItems || items}
+            colorScheme={colorScheme}
           />
         )}
         {children}

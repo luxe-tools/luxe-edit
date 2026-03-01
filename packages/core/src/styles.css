@@ -129,6 +129,103 @@
     padding: 0;
   }
 
+  /* Floating toolbar — needs its own theme vars since it's portaled to body */
+  .luxe-floating-toolbar {
+    --luxe-bg: #ffffff;
+    --luxe-border: #e5e7eb;
+    --luxe-text: #111827;
+    --luxe-toolbar-bg: #ffffff;
+    --luxe-toolbar-border: #e5e7eb;
+    --luxe-toolbar-btn-hover: #f3f4f6;
+    --luxe-toolbar-btn-active: #e5e7eb;
+    background: var(--luxe-toolbar-bg);
+    border: 1px solid var(--luxe-toolbar-border);
+    color: var(--luxe-text);
+  }
+
+  .luxe-floating-toolbar[data-luxe-theme="dark"] {
+    --luxe-bg: #1f2937;
+    --luxe-border: #374151;
+    --luxe-text: #f9fafb;
+    --luxe-toolbar-bg: #111827;
+    --luxe-toolbar-border: #374151;
+    --luxe-toolbar-btn-hover: #374151;
+    --luxe-toolbar-btn-active: #4b5563;
+  }
+
+  /* Toolbar */
+  .luxe-toolbar {
+    background: var(--luxe-toolbar-bg);
+    border-bottom: 1px solid var(--luxe-toolbar-border);
+  }
+
+  .luxe-toolbar-divider {
+    background: var(--luxe-toolbar-border);
+  }
+
+  /* Toolbar buttons */
+  .luxe-toolbar-btn {
+    background: transparent;
+    color: var(--luxe-text);
+    border: none;
+    cursor: pointer;
+  }
+
+  .luxe-toolbar-btn:hover:not(:disabled) {
+    background: var(--luxe-toolbar-btn-hover);
+  }
+
+  .luxe-toolbar-btn.luxe-active {
+    background: var(--luxe-toolbar-btn-active);
+  }
+
+  .luxe-toolbar-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Select-style buttons (heading dropdown, color picker trigger) */
+  .luxe-toolbar-select-btn {
+    background: var(--luxe-bg);
+    border: 1px solid var(--luxe-border);
+    color: var(--luxe-text);
+    cursor: pointer;
+  }
+
+  .luxe-toolbar-select-btn:hover {
+    background: var(--luxe-toolbar-btn-hover);
+  }
+
+  /* Dropdown / popup panels */
+  .luxe-toolbar-panel {
+    background: var(--luxe-bg);
+    border: 1px solid var(--luxe-border);
+    color: var(--luxe-text);
+  }
+
+  .luxe-toolbar-panel-item {
+    background: transparent;
+    color: var(--luxe-text);
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  }
+
+  .luxe-toolbar-panel-item:hover {
+    background: var(--luxe-toolbar-btn-hover);
+  }
+
+  .luxe-toolbar-panel-item.luxe-active {
+    background: var(--luxe-toolbar-btn-active);
+  }
+
+  .luxe-toolbar-input {
+    background: var(--luxe-bg);
+    border: 1px solid var(--luxe-border);
+    color: var(--luxe-text);
+  }
+
   /* Link styles */
   .luxe-input a {
     color: var(--luxe-primary);
