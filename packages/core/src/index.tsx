@@ -16,7 +16,7 @@ import { Toolbar } from './plugins/Toolbar';
 // Export types and components
 export { FloatingToolbarPlugin } from './plugins/FloatingToolbarPlugin';
 export { Toolbar } from './plugins/Toolbar';
-export { getEditorJSON, getEditorText, getEditorFormattedText, getEditorDOM, getEditorTree } from './utils';
+export { getEditorJSON, getEditorText, getEditorFormattedText, getEditorDOM, getEditorTree, getTextFromJSON, getHTMLFromJSON } from './utils';
 export type { ToolbarItem } from './types/toolbar';
 export type { ToolbarItemType } from './types/toolbar';
 
@@ -54,6 +54,7 @@ export interface LuxeEditorProps {
   floatingToolbarItems?: ToolbarItem[]; // Separate items for floating toolbar (optional)
   onChange?: (editorState: EditorState, editor: LexicalEditor) => void;
   ignoreInitialChange?: boolean; // Skip onChange on initial mount (default: true)
+  colorScheme?: 'light' | 'dark'; // Color scheme for the editor
   children?: React.ReactNode;
 }
 
@@ -93,8 +94,8 @@ function InitialJSONHandler({ initialJSON }: { initialJSON: any }) {
   return null;
 }
 
-export function LuxeEditor({ 
-  initialConfig, 
+export function LuxeEditor({
+  initialConfig,
   initialJSON,
   showFloatingToolbar = true,
   showToolbar = true,
@@ -102,7 +103,8 @@ export function LuxeEditor({
   floatingToolbarItems,
   onChange,
   ignoreInitialChange = true,
-  children 
+  colorScheme,
+  children
 }: LuxeEditorProps) {
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   // Default nodes for rich text editing
@@ -157,7 +159,7 @@ export function LuxeEditor({
 
   return (
     <LexicalComposer initialConfig={config}>
-      <div className={`luxe-editor-container ${isFullscreen ? 'luxe-editor-fullscreen' : ''}`}>
+      <div className={`luxe-editor-container ${isFullscreen ? 'luxe-editor-fullscreen' : ''}`} data-luxe-theme={colorScheme}>
         {showToolbar && items && items.length > 0 && (
           <Toolbar items={items} onFullscreenToggle={toggleFullscreen} isFullscreen={isFullscreen} />
         )}
