@@ -60,73 +60,71 @@ function formatTextNode(text: string, format: number): string {
   return text;
 }
 
+function formatNodeToMarkdown(node: any): string {
+  let result = '';
+
+  if ($isHeadingNode(node)) {
+    const tag = node.getTag(); // h1, h2, h3, etc.
+    const level = parseInt(tag.replace('h', ''));
+    const hashes = '#'.repeat(level);
+
+    const headingChildren = node.getChildren();
+    let headingText = '';
+
+    for (const child of headingChildren) {
+      if ($isTextNode(child)) {
+        headingText += formatTextNode(child.getTextContent(), child.getFormat());
+      } else if ($isElementNode(child)) {
+        headingText += formatNodeToMarkdown(child);
+      }
+    }
+
+    result += `${hashes} ${headingText}\n\n`;
+  } else if ($isElementNode(node)) {
+    const elementChildren = node.getChildren();
+    let nodeText = '';
+
+    for (const child of elementChildren) {
+      if ($isTextNode(child)) {
+        nodeText += formatTextNode(child.getTextContent(), child.getFormat());
+      } else if ($isElementNode(child)) {
+        nodeText += formatNodeToMarkdown(child);
+      }
+    }
+
+    const nodeType = node.getType();
+    if (nodeType === 'paragraph') {
+      result += nodeText + '\n\n';
+    } else {
+      result += nodeText;
+    }
+  } else if ($isTextNode(node)) {
+    result += formatTextNode(node.getTextContent(), node.getFormat());
+  }
+
+  return result;
+}
+
+function getMarkdownFromEditorState(editorState: EditorState): string {
+  let formattedText = '';
+
+  editorState.read(() => {
+    const root = $getRoot();
+    const children = root.getChildren();
+
+    for (const child of children) {
+      formattedText += formatNodeToMarkdown(child);
+    }
+  });
+
+  return formattedText.trim();
+}
+
 /**
  * Get the editor content as formatted text (preserves headings and formatting)
  */
 export function getEditorFormattedText(editorState: EditorState): string {
-  let formattedText = '';
-  
-  editorState.read(() => {
-    const root = $getRoot();
-    const children = root.getChildren();
-    
-    const formatNode = (node: any): string => {
-      let result = '';
-      
-      if ($isHeadingNode(node)) {
-        // Heading node - get the level and format its children
-        const tag = node.getTag(); // h1, h2, h3, etc.
-        const level = parseInt(tag.replace('h', ''));
-        const hashes = '#'.repeat(level);
-        
-        // Traverse children to get formatted text (bold, italic, etc.)
-        const headingChildren = node.getChildren();
-        let headingText = '';
-        
-        for (const child of headingChildren) {
-          if ($isTextNode(child)) {
-            headingText += formatTextNode(child.getTextContent(), child.getFormat());
-          } else if ($isElementNode(child)) {
-            headingText += formatNode(child);
-          }
-        }
-        
-        result += `${hashes} ${headingText}\n\n`;
-      } else if ($isElementNode(node)) {
-        // Element node - traverse its children
-        const elementChildren = node.getChildren();
-        let nodeText = '';
-        
-        for (const child of elementChildren) {
-          if ($isTextNode(child)) {
-            nodeText += formatTextNode(child.getTextContent(), child.getFormat());
-          } else if ($isElementNode(child)) {
-            nodeText += formatNode(child);
-          }
-        }
-        
-        const nodeType = node.getType();
-        if (nodeType === 'paragraph') {
-          result += nodeText + '\n\n';
-        } else if (nodeType === 'list') {
-          result += nodeText;
-        } else {
-          result += nodeText;
-        }
-      } else if ($isTextNode(node)) {
-        // Text node - apply formatting
-        result += formatTextNode(node.getTextContent(), node.getFormat());
-      }
-      
-      return result;
-    };
-    
-    for (const child of children) {
-      formattedText += formatNode(child);
-    }
-  });
-  
-  return formattedText.trim();
+  return getMarkdownFromEditorState(editorState);
 }
 
 /**
@@ -268,4 +266,26 @@ export function getHTMLFromJSON(json: any): string {
   } catch {
     return '';
   }
+}
+
+/**
+ * Convert a stored Lexical JSON object to markdown-style text.
+ * This is the JSON-first equivalent of getEditorFormattedText.
+ */
+export function getMarkdownFromJSON(json: any): string {
+  if (!json) return '';
+  try {
+    const editor = createHeadlessEditor();
+    const editorState = editor.parseEditorState(json);
+    return getMarkdownFromEditorState(editorState);
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Alias for getHTMLFromJSON for teams that prefer DOM wording.
+ */
+export function getDOMFromJSON(json: any): string {
+  return getHTMLFromJSON(json);
 }

@@ -16,7 +16,7 @@ import { Toolbar } from './plugins/Toolbar';
 // Export types and components
 export { FloatingToolbarPlugin } from './plugins/FloatingToolbarPlugin';
 export { Toolbar } from './plugins/Toolbar';
-export { getEditorJSON, getEditorText, getEditorFormattedText, getEditorDOM, getEditorTree, getTextFromJSON, getHTMLFromJSON } from './utils';
+export { getEditorJSON, getEditorText, getEditorFormattedText, getEditorDOM, getEditorTree, getTextFromJSON, getHTMLFromJSON, getMarkdownFromJSON, getDOMFromJSON } from './utils';
 export type { ToolbarItem } from './types/toolbar';
 export type { ToolbarItemType } from './types/toolbar';
 

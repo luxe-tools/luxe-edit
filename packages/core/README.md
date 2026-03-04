@@ -135,11 +135,15 @@ function App() {
 ### Get plain text or markdown
 
 ```tsx
-import { getEditorText, getEditorFormattedText } from 'luxe-edit';
+import { getEditorText, getEditorFormattedText, getMarkdownFromJSON, getDOMFromJSON } from 'luxe-edit';
 
 onChange={(editorState) => {
   const plain = getEditorText(editorState);        // Plain text
   const markdown = getEditorFormattedText(editorState); // Markdown-style text
+
+  const json = editorState.toJSON();
+  const markdownFromJSON = getMarkdownFromJSON(json); // Markdown from stored JSON
+  const domFromJSON = getDOMFromJSON(json);           // HTML/DOM string from stored JSON
 }}
 ```
 
@@ -151,6 +155,8 @@ onChange={(editorState) => {
 | `getEditorText` | `(editorState) => string` | Plain text content |
 | `getEditorFormattedText` | `(editorState) => string` | Markdown-formatted text |
 | `getEditorDOM` | `(editor) => string` | Raw HTML from the editor DOM |
+| `getMarkdownFromJSON` | `(json) => string` | Markdown-formatted text generated directly from stored JSON |
+| `getDOMFromJSON` | `(json) => string` | HTML/DOM string generated directly from stored JSON |
 | `getEditorTree` | `(json) => any` | Debug tree structure from JSON |
 
 ## License
