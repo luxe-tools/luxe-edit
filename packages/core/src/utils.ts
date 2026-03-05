@@ -261,6 +261,10 @@ function serializeNodeToHTML(node: any): string {
     return text;
   }
 
+  if (node.type === 'linebreak') {
+    return '<br>';
+  }
+
   const children: string = (node.children || [])
     .map((child: any) => serializeNodeToHTML(child))
     .join('');
@@ -274,10 +278,18 @@ function serializeNodeToHTML(node: any): string {
     return `<p>${children}</p>`;
   }
 
+  if (node.type === 'link' || node.type === 'autolink') {
+    const href = node.url || '#';
+    const target = node.target ? ` target="${node.target}"` : '';
+    const rel = node.rel ? ` rel="${node.rel}"` : '';
+    return `<a href="${href}"${target}${rel}>${children}</a>`;
+  }
+
   if (node.type === 'root') {
     return children;
   }
 
+  // generic fallback: unknown nodes pass through their children
   return children;
 }
 
