@@ -1,6 +1,6 @@
 {
   "name": "luxe-edit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A beautiful, customizable rich text editor for React built on Lexical with customizable toolbars and floating toolbar support",
   "keywords": [
     "react",
