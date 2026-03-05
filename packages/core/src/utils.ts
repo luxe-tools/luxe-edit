@@ -248,6 +248,39 @@ export function getTextFromJSON(json: any): string {
   }
 }
 
+function serializeNodeToHTML(node: any): string {
+  if (!node) return '';
+
+  if (node.type === 'text') {
+    let text = node.text || '';
+    const format: number = node.format || 0;
+    if ((format & 8) !== 0) text = `<s>${text}</s>`;
+    if ((format & 4) !== 0) text = `<u>${text}</u>`;
+    if ((format & 2) !== 0) text = `<em>${text}</em>`;
+    if ((format & 1) !== 0) text = `<strong>${text}</strong>`;
+    return text;
+  }
+
+  const children: string = (node.children || [])
+    .map((child: any) => serializeNodeToHTML(child))
+    .join('');
+
+  if (node.type === 'heading') {
+    const tag = node.tag || 'h1';
+    return `<${tag}>${children}</${tag}>`;
+  }
+
+  if (node.type === 'paragraph') {
+    return `<p>${children}</p>`;
+  }
+
+  if (node.type === 'root') {
+    return children;
+  }
+
+  return children;
+}
+
 /**
  * Convert a stored Lexical JSON object to an HTML string.
  * Useful for rendering editor content in read-only views without mounting the editor.
@@ -256,6 +289,9 @@ export function getTextFromJSON(json: any): string {
 export function getHTMLFromJSON(json: any): string {
   if (!json) return '';
   try {
+    if (json.root) {
+      return serializeNodeToHTML(json.root);
+    }
     const editor = createHeadlessEditor();
     const editorState = editor.parseEditorState(json);
     let html = '';
