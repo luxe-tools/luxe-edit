@@ -48,6 +48,7 @@ function generateImplementationCode(
   selectedFloating: string[],
   showTop: boolean,
   showFloating: boolean,
+  editable: boolean,
   scheme: 'light' | 'dark'
 ): string {
   const toolbarLines = buildToolbarItems(selectedToolbar)
@@ -79,6 +80,7 @@ function App() {
       initialConfig={{ namespace: 'MyEditor', theme: {} }}
       showToolbar={${showTop}}
       showFloatingToolbar={${showFloating}}
+      editable={${editable}}
       toolbarItems={toolbarItems}
       floatingToolbarItems={floatingToolbarItems}
       colorScheme="${scheme}"
@@ -235,6 +237,7 @@ export function Playground() {
   const [selectedFloating, setSelectedFloating] = React.useState<string[]>(FLOATING_OPTIONS);
   const [showTopToolbar, setShowTopToolbar]         = React.useState(true);
   const [showFloatingToolbar, setShowFloatingToolbar] = React.useState(true);
+  const [editable, setEditable] = React.useState(true);
   const [colorScheme, setColorScheme] = React.useState<'light' | 'dark'>('light');
   const [jsonOutput,  setJsonOutput]  = React.useState<any>(null);
   const [outputTab,   setOutputTab]   = React.useState<'markdown' | 'dom'>('markdown');
@@ -260,8 +263,8 @@ export function Playground() {
   );
 
   const implementationCode = React.useMemo(
-    () => generateImplementationCode(selectedToolbar, selectedFloating, showTopToolbar, showFloatingToolbar, colorScheme),
-    [selectedToolbar, selectedFloating, showTopToolbar, showFloatingToolbar, colorScheme]
+    () => generateImplementationCode(selectedToolbar, selectedFloating, showTopToolbar, showFloatingToolbar, editable, colorScheme),
+    [selectedToolbar, selectedFloating, showTopToolbar, showFloatingToolbar, editable, colorScheme]
   );
 
   const toggleToolbar = (item: string) =>
@@ -342,6 +345,7 @@ export function Playground() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <Toggle label="Top Toolbar" value={showTopToolbar} onChange={setShowTopToolbar} />
                   <Toggle label="Floating Toolbar" value={showFloatingToolbar} onChange={setShowFloatingToolbar} />
+                  <Toggle label="Editable" value={editable} onChange={setEditable} />
                 </div>
               </div>
 
@@ -442,6 +446,7 @@ export function Playground() {
                   initialConfig={{ namespace: 'LuxePlayground', theme: {} }}
                   showToolbar={showTopToolbar}
                   showFloatingToolbar={showFloatingToolbar}
+                  editable={editable}
                   toolbarItems={toolbarItems}
                   floatingToolbarItems={floatingItems}
                   colorScheme={colorScheme}

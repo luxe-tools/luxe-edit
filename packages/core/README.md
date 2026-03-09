@@ -33,6 +33,7 @@ function App() {
 | `initialJSON` | `any` | — | Pre-load editor with saved JSON state |
 | `showToolbar` | `boolean` | `true` | Show/hide the top toolbar |
 | `showFloatingToolbar` | `boolean` | `true` | Show/hide the floating selection toolbar |
+| `editable` | `boolean` | `true` | Enable/disable editing (read-only mode when `false`) |
 | `toolbarItems` | `ToolbarItem[]` | see below | Customize top toolbar buttons |
 | `floatingToolbarItems` | `ToolbarItem[]` | same as `toolbarItems` | Customize floating toolbar buttons |
 | `onChange` | `(editorState, editor) => void` | — | Called whenever the editor content changes |
@@ -129,6 +130,15 @@ function App() {
 <LuxeEditor
   initialConfig={{ namespace: 'MyEditor' }}
   showFloatingToolbar={false}
+/>
+```
+
+### Read-only mode (disable editing)
+
+```tsx
+<LuxeEditor
+  initialConfig={{ namespace: 'MyEditor' }}
+  editable={false}
 />
 ```
 
