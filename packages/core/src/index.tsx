@@ -50,6 +50,7 @@ export interface LuxeEditorProps {
   initialJSON?: any;
   showFloatingToolbar?: boolean;
   showToolbar?: boolean;
+  editable?: boolean; // Enable or disable editor editing mode
   toolbarItems?: ToolbarItem[];
   floatingToolbarItems?: ToolbarItem[]; // Separate items for floating toolbar (optional)
   onChange?: (editorState: EditorState, editor: LexicalEditor) => void;
@@ -94,11 +95,22 @@ function InitialJSONHandler({ initialJSON }: { initialJSON: any }) {
   return null;
 }
 
+function EditableHandler({ editable }: { editable: boolean }) {
+  const [editor] = useLexicalComposerContext();
+
+  React.useEffect(() => {
+    editor.setEditable(editable);
+  }, [editor, editable]);
+
+  return null;
+}
+
 export function LuxeEditor({
   initialConfig,
   initialJSON,
   showFloatingToolbar = true,
   showToolbar = true,
+  editable = true,
   toolbarItems,
   floatingToolbarItems,
   onChange,
@@ -132,6 +144,7 @@ export function LuxeEditor({
     namespace: 'LuxeEditor',
     theme: mergedTheme,
     nodes: defaultNodes,
+    editable,
     onError: (error: Error) => console.error(error),
     onUpdate: userOnUpdate,
     ...restInitialConfig,
@@ -160,7 +173,7 @@ export function LuxeEditor({
   return (
     <LexicalComposer initialConfig={config}>
       <div className={`luxe-editor-container ${isFullscreen ? 'luxe-editor-fullscreen' : ''}`} data-luxe-theme={colorScheme}>
-        {showToolbar && items && items.length > 0 && (
+        {showToolbar && editable && items && items.length > 0 && (
           <Toolbar items={items} onFullscreenToggle={toggleFullscreen} isFullscreen={isFullscreen} />
         )}
         <RichTextPlugin
@@ -170,9 +183,10 @@ export function LuxeEditor({
         />
         <HistoryPlugin />
         <LinkPlugin />
+        <EditableHandler editable={editable} />
         {onChange && <OnChangeHandler onChange={onChange} ignoreInitialChange={ignoreInitialChange} />}
         {initialJSON && <InitialJSONHandler initialJSON={initialJSON} />}
-        {showFloatingToolbar && (
+        {showFloatingToolbar && editable && (
           <FloatingToolbarPlugin
             enabled={true}
             items={floatingToolbarItems || items}

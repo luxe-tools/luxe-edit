@@ -107,6 +107,10 @@ function HtmlPreview({ savedJson }: { savedJson: any }) {
                 <span style={{ color: '#64748b', marginLeft: '8px' }}>boolean (default: true) - Show floating toolbar</span>
               </li>
               <li style={{ marginBottom: '12px', padding: '12px', background: '#fff', borderRadius: '6px' }}>
+                <code style={{ color: '#3b82f6', fontWeight: 'bold' }}>editable</code>
+                <span style={{ color: '#64748b', marginLeft: '8px' }}>boolean (default: true) - Enable editing or set read-only mode</span>
+              </li>
+              <li style={{ marginBottom: '12px', padding: '12px', background: '#fff', borderRadius: '6px' }}>
                 <code style={{ color: '#3b82f6', fontWeight: 'bold' }}>toolbarItems</code>
                 <span style={{ color: '#64748b', marginLeft: '8px' }}>ToolbarItem[] - Custom toolbar items</span>
               </li>
