@@ -12,6 +12,14 @@
     "publish:core": "cd packages/core && npm publish --registry=https://registry.npmjs.org/",
     "publish:core:dry": "cd packages/core && npm pack --dry-run"
   },
+  "repository": {
+    "type": "git",
+     "url": "https://github.com/luxe-tools/luxe-edit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/luxe-tools/luxe-edit/issues"
+  },
+  "homepage": "https://github.com/luxe-tools/luxe-edit#readme",
   "author": "amin uddin",
   "license": "MIT"
 }
